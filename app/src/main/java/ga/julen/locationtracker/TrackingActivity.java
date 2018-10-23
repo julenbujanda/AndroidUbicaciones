@@ -1,6 +1,7 @@
 package ga.julen.locationtracker;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -9,6 +10,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -19,6 +22,7 @@ import java.util.ArrayList;
 public class TrackingActivity extends AppCompatActivity {
 
     private LocationManager locationManager;
+    private Button btnMostrarMapa;
 
     private ArrayList<Location> locations;
 
@@ -28,6 +32,15 @@ public class TrackingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_tracking);
         locations = new ArrayList<>();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        btnMostrarMapa = findViewById(R.id.btn_mostrar);
+        btnMostrarMapa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                intent.putParcelableArrayListExtra("locations", locations);
+                startActivity(intent);
+            }
+        });
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions

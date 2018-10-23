@@ -6,4 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".TrackingActivity">
 
+    <Button
+        android:id="@+id/btn_mostrar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="147dp"
+        android:layout_marginBottom="59dp"
+        android:text="Mostrar"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>
