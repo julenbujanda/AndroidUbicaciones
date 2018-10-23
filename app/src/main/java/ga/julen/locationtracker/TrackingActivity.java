@@ -1,8 +1,13 @@
 package ga.julen.locationtracker;
 
 import android.Manifest;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -13,16 +18,28 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class TrackingActivity extends AppCompatActivity {
+public class TrackingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private GoogleMap mMap;
     private LocationManager locationManager;
     private Button btnMostrarMapa;
+    private PolylineOptions line;
+
+    private SQLiteOpenHelper sqLite;
+
+    private boolean mapReady;
+
+    private boolean firstLocation = true;
 
     private ArrayList<Location> locations;
 
@@ -31,34 +48,42 @@ public class TrackingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tracking);
         locations = new ArrayList<>();
+        crearDB();
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        btnMostrarMapa = findViewById(R.id.btn_mostrar);
+        btnMostrarMapa = findViewById(R.id.btn_parar);
         btnMostrarMapa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
-                intent.putParcelableArrayListExtra("locations", locations);
+                guardar();
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 startActivity(intent);
             }
         });
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates("gps", 5 * 1000, 0, mLocationListener);
+        locationManager.requestLocationUpdates("gps", 500, 0, mLocationListener);
     }
 
     private final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(final Location location) {
             locations.add(location);
-            Log.d("location", location.getLatitude() + " " + location.getLongitude());
+            if (mapReady) {
+                LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                line.add(latLng);
+                if (firstLocation) {
+                    mMap.addMarker(new MarkerOptions().position(latLng).title("Primera ubicación."));
+                }
+                firstLocation = false;
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.0f));
+                mMap.addPolyline(line);
+            }
+
         }
 
         @Override
@@ -76,5 +101,53 @@ public class TrackingActivity extends AppCompatActivity {
 
         }
     };
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mapReady = true;
+        line = new PolylineOptions();
+        line.width(5).color(Color.RED);
+        //googleMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
+        googleMap.addPolyline(line);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+    }
+
+    private void crearDB() {
+        sqLite = new SQLiteOpenHelper(this, "ubicaciones", null, 1) {
+            @Override
+            public void onCreate(SQLiteDatabase sqLiteDatabase) {
+                sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS ubicaciones (" +
+                        "ID INTEGER," +
+                        "LATITUD DECIMAL(9,6)," +
+                        "LONGITUD DECIMAL(9,6));");
+            }
+
+            @Override
+            public void onUpgrade(SQLiteDatabase sqLiteDatabase, int i, int i1) {
+
+            }
+        };
+    }
+
+    private void guardar() {
+        SQLiteDatabase db = sqLite.getWritableDatabase();
+        Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT MAX(ID) FROM ubicaciones;", null);
+        int id = 0;
+        if (cursor.moveToNext()) {
+            id = cursor.getInt(0) + 1;
+        }
+        for (Location location : locations) {
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("ID", id);
+            contentValues.put("LATITUD", location.getLatitude());
+            contentValues.put("LONGITUD", location.getLongitude());
+            db.insert("ubicaciones", null, contentValues);
+        }
+    }
 
 }
