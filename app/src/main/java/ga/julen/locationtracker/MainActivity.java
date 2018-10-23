@@ -13,6 +13,7 @@ import android.widget.Button;
 public class MainActivity extends AppCompatActivity {
 
     private Button btnComenzar;
+    private Button btnAnteriores;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +25,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), TrackingActivity.class);
+                startActivity(intent);
+            }
+        });
+        btnAnteriores=findViewById(R.id.btn_anteriores);
+        btnAnteriores.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
                 startActivity(intent);
             }
         });
