@@ -9,6 +9,11 @@ import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -19,6 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -28,17 +34,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private ArrayList<Location> locations;
 
+    private SessionsAdapter sessionsAdapter;
+
+    private Spinner spinner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         Intent intent = getIntent();
+        spinner = findViewById(R.id.spinner);
         locations = ubicacionesPrevias();
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                //Toast.makeText(MapsActivity.this, "test " + , Toast.LENGTH_SHORT).show();
+                locations = new ArrayList<>();
+                Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT * FROM ubicaciones WHERE ID = " + sessionsAdapter.getKey(position) + ";", null);
+                while (cursor.moveToNext()) {
+                    Location location = new Location("");
+                    location.setLatitude(cursor.getFloat(1));
+                    location.setLongitude(cursor.getFloat(2));
+                    locations.add(location);
+                }
+                mMap.clear();
+                onMapReady(mMap);
+                /*mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                        .findFragmentById(R.id.map);*/
+            }
 
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     private ArrayList<Location> ubicacionesPrevias() {
@@ -54,16 +87,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         };
+        LinkedHashMap<Integer, String> spinnerArray = new LinkedHashMap<>();
+        Cursor cursor2 = sqLite.getWritableDatabase().rawQuery("SELECT ID, FECHA_HORA FROM sesiones;", null);
+        while (cursor2.moveToNext()) {
+            spinnerArray.put(cursor2.getInt(0), cursor2.getString(1));
+        }
+
+        sessionsAdapter = new SessionsAdapter(spinnerArray, this);
+        spinner.setAdapter(sessionsAdapter);
         Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT * FROM ubicaciones WHERE ID = (SELECT MAX(ID) FROM ubicaciones);", null);
         while (cursor.moveToNext()) {
             Location location = new Location("");
             location.setLatitude(cursor.getFloat(1));
             location.setLongitude(cursor.getFloat(2));
             ubicaciones.add(location);
-        }
-        Cursor cursor2 = sqLite.getWritableDatabase().rawQuery("SELECT * FROM ubicaciones;", null);
-        while (cursor2.moveToNext()) {
-            Log.d("ubicacion", cursor2.getInt(0) + " " + cursor2.getFloat(1) + cursor2.getFloat(2));
         }
         return ubicaciones;
     }
