@@ -2,6 +2,7 @@ package ga.julen.locationtracker;
 
 import android.Manifest;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -26,7 +27,9 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class TrackingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -125,6 +128,9 @@ public class TrackingActivity extends AppCompatActivity implements OnMapReadyCal
                         "ID INTEGER," +
                         "LATITUD DECIMAL(9,6)," +
                         "LONGITUD DECIMAL(9,6));");
+                sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS sesiones (" +
+                        "ID INTEGER," +
+                        "FECHA_HORA VARCHAR(50))");
             }
 
             @Override
@@ -141,6 +147,10 @@ public class TrackingActivity extends AppCompatActivity implements OnMapReadyCal
         if (cursor.moveToNext()) {
             id = cursor.getInt(0) + 1;
         }
+        ContentValues contentValuesSesion = new ContentValues();
+        contentValuesSesion.put("ID", id);
+        contentValuesSesion.put("FECHA_HORA", DateFormat.getDateTimeInstance().format(new Date()));
+        db.insert("sesiones", null, contentValuesSesion);
         for (Location location : locations) {
             ContentValues contentValues = new ContentValues();
             contentValues.put("ID", id);
