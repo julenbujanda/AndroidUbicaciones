@@ -16,6 +16,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -37,10 +38,12 @@ public class TrackingActivity extends AppCompatActivity implements OnMapReadyCal
     private LocationManager locationManager;
     private Button btnMostrarMapa;
     private PolylineOptions line;
+    private View overlay;
 
     private SQLiteOpenHelper sqLite;
 
     private boolean mapReady;
+    private boolean followUser;
 
     private boolean firstLocation = true;
 
@@ -66,6 +69,15 @@ public class TrackingActivity extends AppCompatActivity implements OnMapReadyCal
                 startActivity(intent);
             }
         });
+        followUser = true;
+        overlay = findViewById(R.id.overlay);
+        overlay.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                followUser = false;
+                return false;
+            }
+        });
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
@@ -83,7 +95,8 @@ public class TrackingActivity extends AppCompatActivity implements OnMapReadyCal
                     mMap.addMarker(new MarkerOptions().position(latLng).title("Primera ubicación."));
                 }
                 firstLocation = false;
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.0f));
+                if (followUser)
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17.0f));
                 mMap.addPolyline(line);
             }
 
@@ -109,6 +122,13 @@ public class TrackingActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mapReady = true;
+        mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                followUser = true;
+                return false;
+            }
+        });
         line = new PolylineOptions();
         line.width(5).color(Color.RED);
         //googleMap.moveCamera(CameraUpdateFactory.newLatLng(lastLocation));
