@@ -55,7 +55,6 @@ public class TrackingActivity extends AppCompatActivity implements OnMapReadyCal
         setContentView(R.layout.activity_tracking);
         locations = new ArrayList<>();
         crearDB();
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -81,7 +80,7 @@ public class TrackingActivity extends AppCompatActivity implements OnMapReadyCal
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        locationManager.requestLocationUpdates("gps", 500, 0, mLocationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 0, mLocationListener);
     }
 
     private final LocationListener mLocationListener = new LocationListener() {
