@@ -1,6 +1,5 @@
 package ga.julen.locationtracker;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -8,12 +7,9 @@ import android.graphics.Color;
 import android.location.Location;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -44,7 +40,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        Intent intent = getIntent();
         spinner = findViewById(R.id.spinner);
         locations = ubicacionesPrevias();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -63,8 +58,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 mMap.clear();
                 onMapReady(mMap);
-                /*mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                        .findFragmentById(R.id.map);*/
             }
 
             @Override
