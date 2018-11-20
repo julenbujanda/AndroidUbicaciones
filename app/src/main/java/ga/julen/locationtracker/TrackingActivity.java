@@ -15,6 +15,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -158,6 +159,7 @@ public class TrackingActivity extends FragmentActivity implements OnMapReadyCall
     }
 
     private void guardar() {
+        locationManager.removeUpdates(mLocationListener);
         SQLiteDatabase db = sqLite.getWritableDatabase();
         Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT MAX(ID) FROM ubicaciones;", null);
         int id = 0;
