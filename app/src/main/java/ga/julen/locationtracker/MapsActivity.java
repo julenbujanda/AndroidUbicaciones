@@ -1,15 +1,20 @@
 package ga.julen.locationtracker;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.location.Location;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -41,33 +46,52 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         spinner = findViewById(R.id.spinner);
-        locations = ubicacionesPrevias();
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                locations = new ArrayList<>();
-                Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT * FROM ubicaciones WHERE ID = " + sessionsAdapter.getKey(position) + ";", null);
-                while (cursor.moveToNext()) {
-                    Location location = new Location("");
-                    location.setLatitude(cursor.getFloat(1));
-                    location.setLongitude(cursor.getFloat(2));
-                    locations.add(location);
+        try {
+            locations = ubicacionesPrevias();
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    locations = new ArrayList<>();
+                    Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT * FROM ubicaciones WHERE ID = " + sessionsAdapter.getKey(position) + ";", null);
+                    while (cursor.moveToNext()) {
+                        Location location = new Location("");
+                        location.setLatitude(cursor.getFloat(1));
+                        location.setLongitude(cursor.getFloat(2));
+                        locations.add(location);
+                    }
+                    mMap.clear();
+                    onMapReady(mMap);
                 }
-                mMap.clear();
-                onMapReady(mMap);
-            }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
 
-            }
-        });
+                }
+            });
+        } catch (SQLiteException e) {
+            ConstraintLayout constraintLayout = findViewById(R.id.mapsActivityLayout);
+            if (constraintLayout.getChildCount() > 0)
+                constraintLayout.removeAllViews();
+            Button btnVolver = new Button(this);
+            TextView txtAnuncio = new TextView(this);
+            txtAnuncio.setText("No hay sesiones anteriores.");
+            btnVolver.setText("Volver");
+            btnVolver.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                    startActivity(intent);
+                }
+            });
+            constraintLayout.addView(txtAnuncio);
+            constraintLayout.addView(btnVolver);
+        }
     }
 
-    private ArrayList<Location> ubicacionesPrevias() {
+    private ArrayList<Location> ubicacionesPrevias() throws SQLiteException {
         ArrayList<Location> ubicaciones = new ArrayList<>();
         sqLite = new SQLiteOpenHelper(this, "ubicaciones", null, 1) {
             @Override
@@ -122,7 +146,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (Marker marker : markers)
             builder.include(marker.getPosition());
         LatLngBounds bounds = builder.build();
-        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 5));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 300));
         googleMap.addPolyline(line);
 
     }
