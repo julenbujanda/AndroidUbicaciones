@@ -8,11 +8,14 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.location.Location;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -72,13 +75,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             });
         } catch (SQLiteException e) {
-            ConstraintLayout constraintLayout = findViewById(R.id.mapsActivityLayout);
-            if (constraintLayout.getChildCount() > 0)
-                constraintLayout.removeAllViews();
-            Button btnVolver = new Button(this);
-            TextView txtAnuncio = new TextView(this);
-            txtAnuncio.setText("No hay sesiones anteriores.");
-            btnVolver.setText("Volver");
+            RelativeLayout constraintLayout = findViewById(R.id.mapsActivityLayout);
+            constraintLayout.removeView(spinner);
+            constraintLayout.removeView(findViewById(R.id.map));
+            Button btnVolver = findViewById(R.id.btnVolver);
+            TextView txtAnuncio = findViewById(R.id.txtAnuncio);
             btnVolver.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -86,8 +87,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     startActivity(intent);
                 }
             });
-            constraintLayout.addView(txtAnuncio);
-            constraintLayout.addView(btnVolver);
+            btnVolver.setVisibility(View.VISIBLE);
+            txtAnuncio.setVisibility(View.VISIBLE);
         }
     }
 
