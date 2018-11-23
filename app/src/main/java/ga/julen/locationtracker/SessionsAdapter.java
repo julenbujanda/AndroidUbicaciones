@@ -1,6 +1,7 @@
 package ga.julen.locationtracker;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -31,7 +32,7 @@ public class SessionsAdapter extends BaseAdapter {
         return sesiones.get(keys[position]);
     }
 
-    public int getKey(int posicion){
+    public int getKey(int posicion) {
         return keys[posicion];
     }
 
@@ -42,8 +43,10 @@ public class SessionsAdapter extends BaseAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        TextView textView = (TextView) View.inflate(context, android.R.layout.simple_spinner_item, null);
-        textView.setText(getItem(position));
-        return textView;
+        LayoutInflater layoutInflater = LayoutInflater.from(context);
+        View view = layoutInflater.inflate(R.layout.sesion, parent, false);
+        TextView listaNombre = view.findViewById(R.id.lista_nombre);
+        listaNombre.setText(getItem(position));
+        return view;
     }
 }
