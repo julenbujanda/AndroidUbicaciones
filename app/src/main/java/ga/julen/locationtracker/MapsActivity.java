@@ -40,43 +40,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private ArrayList<Location> locations;
 
-    private SessionsAdapter sessionsAdapter;
-
-    private Spinner spinner;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        spinner = findViewById(R.id.spinner);
         try {
-            locations = ubicacionesPrevias();
+            Intent intent = getIntent();
+            int idSesion = intent.getIntExtra("idSesion", 0);
+            locations = ubicacionesPrevias(idSesion);
             SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.map);
             mapFragment.getMapAsync(this);
-            spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    locations = new ArrayList<>();
-                    Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT * FROM ubicaciones WHERE ID = " + sessionsAdapter.getKey(position) + ";", null);
-                    while (cursor.moveToNext()) {
-                        Location location = new Location("");
-                        location.setLatitude(cursor.getFloat(1));
-                        location.setLongitude(cursor.getFloat(2));
-                        locations.add(location);
-                    }
-                    mMap.clear();
-                    onMapReady(mMap);
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-
-                }
-            });
         } catch (SQLiteException e) {
             RelativeLayout constraintLayout = findViewById(R.id.mapsActivityLayout);
-            constraintLayout.removeView(spinner);
             constraintLayout.removeView(findViewById(R.id.map));
             Button btnVolver = findViewById(R.id.btnVolver);
             TextView txtAnuncio = findViewById(R.id.txtAnuncio);
@@ -92,8 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private ArrayList<Location> ubicacionesPrevias() throws SQLiteException {
-        ArrayList<Location> ubicaciones = new ArrayList<>();
+    private ArrayList<Location> ubicacionesPrevias(int idSesion) throws SQLiteException {
         sqLite = new SQLiteOpenHelper(this, "ubicaciones", null, 1) {
             @Override
             public void onCreate(SQLiteDatabase sqLiteDatabase) {
@@ -105,15 +80,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         };
-        LinkedHashMap<Integer, String> spinnerArray = new LinkedHashMap<>();
-        Cursor cursor2 = sqLite.getWritableDatabase().rawQuery("SELECT ID, FECHA_HORA FROM sesiones ORDER BY ID DESC;", null);
-        while (cursor2.moveToNext()) {
-            spinnerArray.put(cursor2.getInt(0), cursor2.getString(1));
-        }
-
-        sessionsAdapter = new SessionsAdapter(spinnerArray, this);
-        spinner.setAdapter(sessionsAdapter);
-        Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT * FROM ubicaciones WHERE ID = (SELECT MAX(ID) FROM sesiones);", null);
+        ArrayList<Location> ubicaciones = new ArrayList<>();
+        Cursor cursor = sqLite.getWritableDatabase().rawQuery("SELECT * FROM ubicaciones WHERE ID = " + idSesion + ";", null);
         while (cursor.moveToNext()) {
             Location location = new Location("");
             location.setLatitude(cursor.getFloat(1));
