@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LocationTracker</string>
+    <string name="title_activity_maps">Mapa</string>
+    <string name="first_location">Primera ubicación.</string>
+    <string name="last_location">Primera ubicación.</string>
+    <string name="start">Comenzar</string>
+    <string name="show_previous">Mostrar anteriores</string>
+    <string name="no_to_show">No hay ubicaciones previas</string>
+    <string name="go_back">Volver</string>
+</resources>
