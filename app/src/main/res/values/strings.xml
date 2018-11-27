@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">LocationTracker</string>
     <string name="title_activity_maps">Map</string>
+    <string name="first_location">First location</string>
+    <string name="last_location">Last location</string>
+    <string name="start">Start</string>
+    <string name="show_previous">Show previous</string>
+    <string name="no_to_show">No previous locations to show.</string>
+    <string name="go_back">Go back</string>
 </resources>

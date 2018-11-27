@@ -7,16 +7,11 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.location.Location;
-import android.support.constraint.ConstraintLayout;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -30,7 +25,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -104,13 +98,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             line.add(latLng);
             if (firstLocation) {
-                markers.add(googleMap.addMarker(new MarkerOptions().position(latLng).title("Primera ubicación.")));
+                markers.add(googleMap.addMarker(new MarkerOptions().position(latLng).title(getString(R.string.first_location))));
             }
             firstLocation = false;
             lastLocation = latLng;
         }
         line.width(5).color(Color.RED);
-        markers.add(googleMap.addMarker(new MarkerOptions().position(lastLocation).title("Última ubicación.")));
+        markers.add(googleMap.addMarker(new MarkerOptions().position(lastLocation).title(getString(R.string.last_location))));
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (Marker marker : markers)
             builder.include(marker.getPosition());
