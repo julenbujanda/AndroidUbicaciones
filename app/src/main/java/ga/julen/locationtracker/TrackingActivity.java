@@ -89,7 +89,7 @@ public class TrackingActivity extends FragmentActivity implements OnMapReadyCall
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
                 line.add(latLng);
                 if (firstLocation) {
-                    mMap.addMarker(new MarkerOptions().position(latLng).title("Primera ubicación."));
+                    mMap.addMarker(new MarkerOptions().position(latLng).title(getString(R.string.first_location)));
                 }
                 firstLocation = false;
                 if (followUser)
