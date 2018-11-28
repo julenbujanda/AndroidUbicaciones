@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">LocationTracker</string>
+    <string name="title_activity_maps">Mapa</string>
+    <string name="first_location">Lehen kokapena</string>
+    <string name="last_location">Azken kokapena</string>
+    <string name="start">Hasi</string>
+    <string name="show_previous">Erakutzi lehenak</string>
+    <string name="no_to_show">Ez daude lehenagoko ubikaziorik</string>
+    <string name="go_back">Bueltatu</string>
+</resources>
