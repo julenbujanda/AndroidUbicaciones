@@ -109,8 +109,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (Marker marker : markers)
             builder.include(marker.getPosition());
         LatLngBounds bounds = builder.build();
-        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 300));
         googleMap.addPolyline(line);
-
+        mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 300));
     }
 }
